@@ -11,7 +11,7 @@ Thumbs.db
 .settings/
 *.sublime-workspace
 *.sublime-project
-
+.agents 
 # Environment & Secrets
 .env
 .env.*
@@ -72,3 +72,5 @@ backend/.apt_generated/
 # Maven
 backend/.mvn/wrapper/maven-wrapper.jar
 backend/dependency-reduced-pom.xml
+
+backend/application.properties
