@@ -1,0 +1,74 @@
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.classpath
+.project
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Environment & Secrets
+.env
+.env.*
+*.local
+credentials.json
+# Note: application.properties has been redacted for safe commit.
+# If you want to keep local secrets, add backend/src/main/resources/application-dev.properties or similar.
+
+# --------------------------
+# Flutter / Mobile (.gitignore)
+# --------------------------
+mobile/build/
+mobile/.dart_tool/
+mobile/.pub-cache/
+mobile/.pub/
+mobile/.packages
+
+# Android
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/local.properties
+mobile/android/key.properties
+mobile/android/**/*.keystore
+mobile/android/**/*.jks
+
+# iOS
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/App.framework
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/app.flx
+mobile/ios/Flutter/app.zip
+mobile/ios/Flutter/flutter_assets/
+mobile/ios/Flutter/flutter_export_environment.sh
+
+# macOS
+mobile/macos/Flutter/ephemeral/
+mobile/macos/Pods/
+
+# Web / Linux / Windows
+mobile/windows/flutter/ephemeral/
+mobile/linux/flutter/ephemeral/
+mobile/web/build/
+
+# --------------------------
+# Backend / Java / Spring Boot
+# --------------------------
+backend/target/
+backend/build/
+backend/.gradle/
+backend/out/
+backend/logs/
+backend/*.log
+backend/build.log
+backend/.apt_generated/
+
+# Maven
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/dependency-reduced-pom.xml
