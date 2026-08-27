@@ -65,13 +65,12 @@ class SpeechMetricsService extends ChangeNotifier {
         _currentTranscript = result.recognizedWords;
         notifyListeners();
       },
-      // Keep listening even if user pauses
-      pauseFor: const Duration(seconds: 10),
-      listenFor: const Duration(minutes: 3),
       listenOptions: stt.SpeechListenOptions(
         partialResults: true,
         cancelOnError: false,
         listenMode: stt.ListenMode.dictation,
+        pauseFor: const Duration(seconds: 10),
+        listenFor: const Duration(minutes: 3),
       ),
     );
   }

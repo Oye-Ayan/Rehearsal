@@ -20,7 +20,8 @@ public class AnswerService {
     private final UserRepository userRepository;
     private final GroqFeedbackService feedbackService;
 
-    public AnswerService(AnswerRepository answerRepository, QuestionRepository questionRepository, UserRepository userRepository, GroqFeedbackService feedbackService) {
+    public AnswerService(AnswerRepository answerRepository, QuestionRepository questionRepository,
+            UserRepository userRepository, GroqFeedbackService feedbackService) {
         this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
         this.userRepository = userRepository;

@@ -17,8 +17,8 @@ Thumbs.db
 .env.*
 *.local
 credentials.json
+backend/src/main/resources/application-secret.properties
 # Note: application.properties has been redacted for safe commit.
-# If you want to keep local secrets, add backend/src/main/resources/application-dev.properties or similar.
 
 # --------------------------
 # Flutter / Mobile (.gitignore)

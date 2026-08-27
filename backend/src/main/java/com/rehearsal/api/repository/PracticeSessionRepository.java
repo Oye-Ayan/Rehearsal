@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PracticeSessionRepository extends JpaRepository<PracticeSession, Long> {
     List<PracticeSession> findByUserId(Long userId);
+    List<PracticeSession> findByUserEmailOrderByCreatedAtDesc(String email);
 }

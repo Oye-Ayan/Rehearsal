@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../services/auth_service.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 import 'home_screen.dart';
 import 'dart:ui';
 
@@ -36,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text,
     );
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (error == null) {
       Navigator.of(context).pushReplacement(
@@ -238,42 +239,46 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ).animate().fadeIn(delay: 500.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => const ForgotPasswordScreen(),
+                                transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ).animate().fadeIn(delay: 600.ms, duration: 800.ms),
+
+                      const SizedBox(height: 16),
 
                       // Google Login Mock
                       SizedBox(
                         width: double.infinity,
                         height: 64,
                         child: OutlinedButton.icon(
-                          onPressed: () async {
-                            final email = "google_user@test.com";
-                            final password = "password123";
-                            setState(() {
-                              _emailController.text = email;
-                              _passwordController.text = password;
-                            });
-                            
+                          onPressed: auth.isLoading ? null : () async {
                             final authService = context.read<AuthService>();
-                            final loginError = await authService.login(email, password);
+                            final loginError = await authService.loginWithGoogle();
                             
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             
                             if (loginError != null) {
-                              final regError = await authService.register(email, password);
-                              if (!mounted) return;
-                              
-                              if (regError == null) {
-                                Navigator.of(context).pushReplacement(
-                                  PageRouteBuilder(
-                                    pageBuilder: (_, __, ___) => const HomeScreen(),
-                                    transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(regError), backgroundColor: AppTheme.errorRed),
-                                );
-                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(loginError), backgroundColor: AppTheme.errorRed),
+                              );
                             } else {
                               Navigator.of(context).pushReplacement(
                                 PageRouteBuilder(

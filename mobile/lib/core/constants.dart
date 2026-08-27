@@ -9,6 +9,7 @@ class AppConstants {
   // Auth endpoints
   static const String registerUrl = '$apiBase/auth/register';
   static const String loginUrl = '$apiBase/auth/login';
+  static const String googleLoginUrl = '$apiBase/auth/google';
   
   // Resume endpoints
   static const String resumeUploadUrl = '$apiBase/resumes/upload';

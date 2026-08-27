@@ -88,8 +88,25 @@ class ApiService {
     }
   }
 
+  /// Fetch history of sessions
+  Future<List<dynamic>?> getHistory() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConstants.apiBase}/sessions/history'),
+        headers: _authService.authHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// Submit an answer with computed speech metrics
-  Future<Map<String, dynamic>?> submitAnswer(int questionId, Map<String, dynamic> metricsPayload) async {
+  Future<Map<String, dynamic>> submitAnswer(int questionId, Map<String, dynamic> metricsPayload) async {
     try {
       final response = await http.post(
         Uri.parse('${AppConstants.apiBase}/questions/$questionId/answers'),
@@ -99,10 +116,11 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
+      } else {
+        throw Exception('Server error: ${response.statusCode} - ${response.body}');
       }
-      return null;
     } catch (e) {
-      return null;
+      throw Exception('Failed to submit answer: $e');
     }
   }
 }
