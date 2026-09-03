@@ -43,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = context.watch<AuthService>();
 
     return Scaffold(
-      backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Row(
@@ -53,13 +52,13 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.textPrimary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.mic_rounded, size: 18, color: AppTheme.primaryDark),
             ),
             const SizedBox(width: 10),
-            const Text('Rehearsal', style: TextStyle(fontWeight: FontWeight.w700)),
+            const Text('Rehearsal', style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: -0.5)),
           ],
         ),
         actions: [
@@ -82,107 +81,153 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          // Ethereal Glass Background Orbs
-          Positioned(
-            top: -50,
-            right: -100,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accentPurple.withOpacity(0.08),
-                boxShadow: [BoxShadow(color: AppTheme.accentPurple.withOpacity(0.08), blurRadius: 150, spreadRadius: 50)],
-              ),
-            ),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 8.seconds, curve: AppTheme.fluidCurve),
-
-          Positioned(
-            bottom: -100,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accentBlue.withOpacity(0.06),
-                boxShadow: [BoxShadow(color: AppTheme.accentBlue.withOpacity(0.06), blurRadius: 150, spreadRadius: 50)],
-              ),
-            ),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 10.seconds, curve: AppTheme.fluidCurve),
-
-          // Glassmorphic Noise Overlay
+          // Subtle Premium Background
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 120, sigmaY: 120),
-              child: IgnorePointer(
-                child: Container(color: Colors.transparent),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0.5, -0.5),
+                  radius: 1.2,
+                  colors: [
+                    Color(0xFF18181B), // Zinc 900
+                    Color(0xFF09090B), // Zinc 950
+                  ],
+                ),
               ),
             ),
           ),
-
+          
           SafeArea(
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Massive Editorial Greeting
+                        // Greeting
                         Text(
-                          'Welcome back,',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          'Good morning,',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppTheme.textSecondary,
-                            letterSpacing: 2,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            fontFamily: 'Inter',
+                            letterSpacing: -0.2,
                           ),
                         ).animate().fadeIn(duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
-                        const SizedBox(height: 8),
+                        
+                        const SizedBox(height: 4),
+                        
                         Text(
                           auth.email?.split('@').first.toUpperCase() ?? 'USER',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -2,
-                            height: 1,
-                          ),
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 40),
                         ).animate().fadeIn(delay: 100.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
                         
                         const SizedBox(height: 48),
 
-                        // Asymmetrical Bento Layout for Actions
+                        // Main Dashboard Action Card
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => const NewSessionScreen(),
+                                transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppTheme.cardDark,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: AppTheme.borderDark, width: 1),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 15),
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              children: [
+                                // Subtle overlay pattern or gradient for premium feel
+                                Positioned(
+                                  right: -50,
+                                  top: -50,
+                                  child: Container(
+                                    width: 200,
+                                    height: 200,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: RadialGradient(
+                                        colors: [
+                                          AppTheme.accentIndigo.withValues(alpha: 0.15),
+                                          Colors.transparent,
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.surfaceDark,
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(color: AppTheme.borderDark),
+                                        ),
+                                        child: const Icon(Icons.play_arrow_rounded, color: AppTheme.textPrimary, size: 28),
+                                      ),
+                                      const SizedBox(height: 32),
+                                      const Text(
+                                        'Start Practice',
+                                        style: TextStyle(
+                                          color: AppTheme.textPrimary,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: -1,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Begin a new AI interview session',
+                                        style: TextStyle(
+                                          color: AppTheme.textSecondary,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ).animate().fadeIn(delay: 200.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
+                        
+                        const SizedBox(height: 24),
+
+                        // Analytics Bento Boxes
                         Row(
                           children: [
                             Expanded(
-                              flex: 3,
-                              child: _buildPrimaryActionCard().animate().fadeIn(delay: 200.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideX(begin: -0.1),
+                              child: _buildStatCard(
+                                icon: Icons.schedule_rounded,
+                                value: _historyList != null ? '${_historyList!.length}' : '-',
+                                label: 'Total Sessions',
+                              ).animate().fadeIn(delay: 300.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              flex: 2,
-                              child: Column(
-                                children: [
-                                  _buildSecondaryActionCard(
-                                    icon: Icons.psychology_rounded,
-                                    title: 'AI Coach',
-                                    color: AppTheme.accentPurple,
-                                  ).animate().fadeIn(delay: 300.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideX(begin: 0.1),
-                                  const SizedBox(height: 16),
-                                  _buildSecondaryActionCard(
-                                    icon: Icons.analytics_rounded,
-                                    title: 'Analytics',
-                                    color: Colors.orangeAccent,
-                                  ).animate().fadeIn(delay: 400.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideX(begin: 0.1),
-                                ],
-                              ),
+                              child: _buildStatCard(
+                                icon: Icons.analytics_rounded,
+                                value: 'N/A', // Placeholder for actual avg score
+                                label: 'Avg. Score',
+                              ).animate().fadeIn(delay: 400.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
                             ),
                           ],
                         ),
@@ -190,26 +235,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 48),
 
                         // Session History Header
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.white.withOpacity(0.1)),
-                              ),
-                              child: const Text(
-                                'HISTORY',
-                                style: TextStyle(
-                                  color: AppTheme.textSecondary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            ),
-                          ],
+                        const Text(
+                          'Recent Sessions',
+                          style: TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.5,
+                          ),
                         ).animate().fadeIn(delay: 500.ms, duration: 800.ms, curve: AppTheme.fluidCurve),
                       ],
                     ),
@@ -219,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Session History List
                 if (_isLoading)
                   const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator(color: AppTheme.accentBlue)),
+                    child: Center(child: CircularProgressIndicator(color: AppTheme.textPrimary)),
                   )
                 else if (_historyList == null || _historyList!.isEmpty)
                   SliverToBoxAdapter(
@@ -227,9 +260,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.all(24.0),
                       child: Center(
                         child: Text(
-                          'No practice sessions yet.\nStart a new session above.',
+                          'No practice sessions yet.\nTap Start Practice to begin.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppTheme.textSecondary.withOpacity(0.5), fontSize: 16, height: 1.5),
+                          style: TextStyle(color: AppTheme.textMuted, fontSize: 15, height: 1.5),
                         ),
                       ),
                     ).animate().fadeIn(delay: 600.ms, duration: 800.ms),
@@ -248,153 +281,46 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   
-                const SliverToBoxAdapter(child: SizedBox(height: 100)), // Bottom padding for FAB
+                const SliverToBoxAdapter(child: SizedBox(height: 48)),
               ],
             ),
           ),
         ],
       ),
-      floatingActionButton: SizedBox(
-        height: 64,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            Navigator.of(context).push(
-              PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const NewSessionScreen(),
-                transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.accentBlue,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-          ),
-          icon: const Icon(Icons.add_rounded, size: 24),
-          label: const Text('New Session', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        ),
-      ).animate().fadeIn(delay: 700.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
     );
   }
 
-  Widget _buildPrimaryActionCard() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const NewSessionScreen(),
-            transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
-          ),
-        );
-      },
-      child: Container(
-        height: 220, // Tall card in the asymmetrical bento
-        decoration: AppTheme.doubleBezelOuter(),
-        padding: const EdgeInsets.all(4),
-        child: Container(
-          decoration: AppTheme.doubleBezelInner().copyWith(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.accentBlue.withOpacity(0.15),
-                AppTheme.primaryDark,
-              ],
-            ),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.videocam_rounded, color: AppTheme.accentBlue, size: 32),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Start\nRehearsing',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -1,
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Upload Resume',
-                          style: TextStyle(color: AppTheme.accentBlue, fontSize: 12, fontWeight: FontWeight.w600),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentBlue.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.arrow_forward_rounded, color: AppTheme.accentBlue, size: 12),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSecondaryActionCard({required IconData icon, required String title, required Color color}) {
+  Widget _buildStatCard({required IconData icon, required String value, required String label}) {
     return Container(
-      height: 102,
-      decoration: AppTheme.doubleBezelOuter(),
-      padding: const EdgeInsets.all(4),
-      child: Container(
-        decoration: AppTheme.doubleBezelInner(),
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceDark,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.borderDark, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppTheme.accentIndigo, size: 24),
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.5,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.5,
-                ),
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 13,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -412,48 +338,48 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
-        decoration: AppTheme.doubleBezelOuter(),
-        padding: const EdgeInsets.all(4),
-        child: Container(
-          decoration: AppTheme.doubleBezelInner(),
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: const Icon(Icons.check_circle_outline_rounded, color: AppTheme.accentGreen),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceDark,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppTheme.borderDark, width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppTheme.cardDark,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.borderDark),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Session #${session['id']}',
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.5,
-                      ),
+              child: const Icon(Icons.check_circle_outline_rounded, color: AppTheme.textPrimary),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Session #${session['id']}',
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.5,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      dateStr,
-                      style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    dateStr,
+                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                  ),
+                ],
               ),
-              const Icon(Icons.chevron_right_rounded, color: AppTheme.textSecondary),
-            ],
-          ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppTheme.textSecondary),
+          ],
         ),
       ).animate().fadeIn(delay: Duration(milliseconds: 600 + (index * 100)), duration: 600.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
     );

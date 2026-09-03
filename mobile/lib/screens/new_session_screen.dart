@@ -117,7 +117,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('New Practice Session'),
+        title: const Text('New Practice Session', style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: -0.5)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.pop(context),
@@ -125,27 +125,18 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
       ),
       body: Stack(
         children: [
-          // Ethereal Orbs
-          Positioned(
-            top: -50,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accentBlue.withValues(alpha: 0.12),
-                boxShadow: [BoxShadow(color: AppTheme.accentBlue.withValues(alpha: 0.12), blurRadius: 100, spreadRadius: 50)],
-              ),
-            ),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 7.seconds, curve: AppTheme.fluidCurve),
-
+          // Subtle Premium Background
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-              child: IgnorePointer(
-                child: Container(color: Colors.transparent),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0.5, -0.5),
+                  radius: 1.2,
+                  colors: [
+                    Color(0xFF18181B), // Zinc 900
+                    Color(0xFF09090B), // Zinc 950
+                  ],
+                ),
               ),
             ),
           ),
@@ -198,48 +189,48 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
       children: [
         Text(
           'Upload Your Resume',
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context).textTheme.displayMedium,
         ).animate().fadeIn(delay: 100.ms, curve: AppTheme.fluidCurve).slideX(begin: -0.05),
         const SizedBox(height: 12),
         Text(
           'We\'ll parse your resume to match it against job descriptions and generate tailored questions.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
         ).animate().fadeIn(delay: 200.ms, curve: AppTheme.fluidCurve).slideX(begin: -0.05),
         const SizedBox(height: 48),
 
-        // File Picker Area (Double Bezel)
+        // File Picker Area
         GestureDetector(
           onTap: _pickResume,
           child: Container(
-            decoration: AppTheme.doubleBezelOuter(),
-            padding: const EdgeInsets.all(4),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(48),
-              decoration: AppTheme.doubleBezelInner(),
-              child: Column(
-                children: [
-                  Icon(
-                    _selectedFile != null ? Icons.check_circle_rounded : Icons.cloud_upload_outlined,
-                    size: 64,
-                    color: _selectedFile != null ? AppTheme.accentGreen : AppTheme.textSecondary,
+            width: double.infinity,
+            padding: const EdgeInsets.all(48),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: _selectedFile != null ? AppTheme.accentGreen : AppTheme.borderDark, width: 2),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  _selectedFile != null ? Icons.check_circle_rounded : Icons.cloud_upload_outlined,
+                  size: 64,
+                  color: _selectedFile != null ? AppTheme.accentGreen : AppTheme.textSecondary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  _fileName ?? 'Tap to select a PDF resume',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _selectedFile != null ? AppTheme.textPrimary : AppTheme.textSecondary,
+                    fontSize: 16,
+                    fontWeight: _selectedFile != null ? FontWeight.w600 : FontWeight.w500,
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    _fileName ?? 'Tap to select a PDF resume',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: _selectedFile != null ? AppTheme.textPrimary : AppTheme.textSecondary,
-                      fontSize: 16,
-                      fontWeight: _selectedFile != null ? FontWeight.w700 : FontWeight.w600,
-                    ),
-                  ),
-                  if (_selectedFile == null) ...[
-                    const SizedBox(height: 12),
-                    const Text('Supports .pdf files', style: TextStyle(color: AppTheme.textMuted, fontSize: 14)),
-                  ],
+                ),
+                if (_selectedFile == null) ...[
+                  const SizedBox(height: 12),
+                  const Text('Supports .pdf files', style: TextStyle(color: AppTheme.textMuted, fontSize: 14)),
                 ],
-              ),
+              ],
             ),
           ),
         ).animate().fadeIn(delay: 300.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
@@ -248,7 +239,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
 
         SizedBox(
           width: double.infinity,
-          height: 64,
+          height: 60,
           child: ElevatedButton(
             onPressed: _selectedFile == null || _isUploading ? null : _uploadResume,
             child: _isUploading
@@ -272,8 +263,9 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppTheme.accentGreen.withValues(alpha: 0.1),
+            color: AppTheme.surfaceDark,
             borderRadius: BorderRadius.circular(100),
+            border: Border.all(color: AppTheme.borderDark),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -283,7 +275,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
               Flexible(
                 child: Text(
                   'Resume uploaded: $_fileName',
-                  style: const TextStyle(color: AppTheme.accentGreen, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -294,32 +286,34 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
 
         Text(
           'Paste Job Description',
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context).textTheme.displayMedium,
         ).animate().fadeIn(delay: 100.ms, curve: AppTheme.fluidCurve).slideX(begin: -0.05),
         const SizedBox(height: 12),
         Text(
           'Paste the full job description. We\'ll compute a match score and generate tailored interview questions.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
         ).animate().fadeIn(delay: 200.ms, curve: AppTheme.fluidCurve).slideX(begin: -0.05),
         const SizedBox(height: 32),
 
         Container(
-          decoration: AppTheme.doubleBezelOuter(),
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceDark,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.borderDark),
+          ),
           padding: const EdgeInsets.all(4),
-          child: Container(
-            decoration: AppTheme.doubleBezelInner(),
-            child: TextFormField(
-              controller: _jdController,
-              maxLines: 12,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, height: 1.6),
-              decoration: const InputDecoration(
-                hintText: 'Paste the job description here...',
-                alignLabelWithHint: true,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                fillColor: Colors.transparent,
-              ),
+          child: TextFormField(
+            controller: _jdController,
+            maxLines: 12,
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15, height: 1.6),
+            decoration: const InputDecoration(
+              hintText: 'Paste the job description here...',
+              alignLabelWithHint: true,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              fillColor: Colors.transparent,
+              contentPadding: EdgeInsets.all(16),
             ),
           ),
         ).animate().fadeIn(delay: 300.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
@@ -328,7 +322,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
 
         SizedBox(
           width: double.infinity,
-          height: 64,
+          height: 60,
           child: ElevatedButton(
             onPressed: _jdController.text.trim().isEmpty || _isCreatingSession
                 ? null
@@ -373,13 +367,13 @@ class _StepDot extends StatelessWidget {
             color: isComplete
                 ? AppTheme.accentGreen
                 : isActive
-                    ? AppTheme.accentBlue
+                    ? AppTheme.accentIndigo
                     : AppTheme.surfaceDark,
             border: Border.all(
               color: isComplete
                   ? AppTheme.accentGreen
                   : isActive
-                      ? AppTheme.accentBlue
+                      ? AppTheme.accentIndigo
                       : AppTheme.borderDark,
               width: 2,
             ),
@@ -396,7 +390,7 @@ class _StepDot extends StatelessWidget {
           style: TextStyle(
             color: isActive ? AppTheme.textPrimary : AppTheme.textMuted,
             fontSize: 12,
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ],

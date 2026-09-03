@@ -26,7 +26,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Practice Interview'),
+        title: const Text('Practice Interview', style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: -0.5)),
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -41,43 +41,18 @@ class _InterviewScreenState extends State<InterviewScreen> {
       ),
       body: Stack(
         children: [
-          // Ethereal Background Orbs (Softer and larger)
-          Positioned(
-            top: -100,
-            right: -50,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accentPurple.withValues(alpha: 0.08),
-                boxShadow: [BoxShadow(color: AppTheme.accentPurple.withValues(alpha: 0.08), blurRadius: 100, spreadRadius: 50)],
-              ),
-            ),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 10.seconds, curve: AppTheme.fluidCurve),
-          
-          Positioned(
-            bottom: -50,
-            left: -100,
-            child: Container(
-              width: 450,
-              height: 450,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accentBlue.withValues(alpha: 0.08),
-                boxShadow: [BoxShadow(color: AppTheme.accentBlue.withValues(alpha: 0.08), blurRadius: 100, spreadRadius: 50)],
-              ),
-            ),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 12.seconds, curve: AppTheme.fluidCurve),
-
-          // Glassmorphic Noise Overlay
+          // Subtle Premium Background
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 120, sigmaY: 120),
-              child: IgnorePointer(
-                child: Container(color: Colors.transparent),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0.5, -0.5),
+                  radius: 1.2,
+                  colors: [
+                    Color(0xFF18181B), // Zinc 900
+                    Color(0xFF09090B), // Zinc 950
+                  ],
+                ),
               ),
             ),
           ),
@@ -149,7 +124,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
                       '$_matchScore% Match',
                       style: TextStyle(
                         color: _getScoreColor(_matchScore),
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         fontSize: 14,
                         letterSpacing: -0.2,
                       ),
@@ -162,14 +137,14 @@ class _InterviewScreenState extends State<InterviewScreen> {
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceDark,
                   borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                  border: Border.all(color: AppTheme.borderDark),
                 ),
                 child: Text(
                   '${_currentQuestionIndex + 1} / ${_questions.length}',
                   style: const TextStyle(
                     color: AppTheme.textPrimary,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -187,11 +162,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
                   height: 4,
                   margin: EdgeInsets.only(right: index == _questions.length - 1 ? 0 : 8),
                   decoration: BoxDecoration(
-                    color: isActive ? AppTheme.accentBlue : Colors.white.withValues(alpha: 0.05),
+                    color: isActive ? AppTheme.accentIndigo : AppTheme.borderDark,
                     borderRadius: BorderRadius.circular(2),
-                    boxShadow: isActive
-                        ? [BoxShadow(color: AppTheme.accentBlue.withValues(alpha: 0.5), blurRadius: 8)]
-                        : [],
                   ),
                 ),
               );
@@ -200,7 +172,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
           
           const SizedBox(height: 32),
 
-          // Question Card with Double-Bezel and AnimatedSwitcher
+          // Question Card
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 600),
@@ -230,13 +202,13 @@ class _InterviewScreenState extends State<InterviewScreen> {
               // Previous button
               if (_currentQuestionIndex > 0)
                 Container(
-                  height: 64,
-                  width: 64,
+                  height: 60,
+                  width: 60,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
                     color: AppTheme.surfaceDark,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                    border: Border.all(color: AppTheme.borderDark),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary),
@@ -247,7 +219,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
               // Record button
               Expanded(
                 child: SizedBox(
-                  height: 64,
+                  height: 60,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(
@@ -279,7 +251,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
                       children: [
                         Icon(Icons.fiber_manual_record, size: 18),
                         SizedBox(width: 8),
-                        Text('Record Answer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        Text('Record Answer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -330,60 +302,60 @@ class _InterviewScreenState extends State<InterviewScreen> {
     return Container(
       key: key,
       width: double.infinity,
-      decoration: AppTheme.doubleBezelOuter(),
-      padding: const EdgeInsets.all(6),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
-        decoration: AppTheme.doubleBezelInner(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.accentPurple.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Text(
-                (question['category'] ?? 'GENERAL').toString().toUpperCase(),
-                style: const TextStyle(
-                  color: AppTheme.accentPurple,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.5,
-                ),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceDark,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.borderDark),
+      ),
+      padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.accentIndigo.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(
+              (question['category'] ?? 'GENERAL').toString().toUpperCase(),
+              style: const TextStyle(
+                color: AppTheme.accentIndigo,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
-            const Icon(Icons.format_quote_rounded, color: AppTheme.borderDark, size: 48),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Text(
-                    question['text'] ?? 'Question text unavailable',
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      height: 1.4,
-                      letterSpacing: -0.5,
-                    ),
+          ),
+          const SizedBox(height: 24),
+          const Icon(Icons.format_quote_rounded, color: AppTheme.borderDark, size: 48),
+          const SizedBox(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Text(
+                  question['text'] ?? 'Question text unavailable',
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Color _getScoreColor(int score) {
     if (score >= 75) return AppTheme.accentGreen;
-    if (score >= 50) return AppTheme.accentBlue;
+    if (score >= 50) return AppTheme.accentIndigo;
     return AppTheme.errorRed;
   }
 
@@ -393,12 +365,12 @@ class _InterviewScreenState extends State<InterviewScreen> {
       builder: (ctx) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: AlertDialog(
-          backgroundColor: AppTheme.cardDark,
+          backgroundColor: AppTheme.surfaceDark,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+            side: BorderSide(color: AppTheme.borderDark),
           ),
-          title: const Text('Exit Session?', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700)),
+          title: const Text('Exit Session?', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600)),
           content: const Text(
             'Your progress will not be saved. Are you sure you want to end this interview?',
             style: TextStyle(color: AppTheme.textSecondary, height: 1.5),
@@ -406,7 +378,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Keep Practicing', style: TextStyle(color: AppTheme.accentBlue, fontWeight: FontWeight.w600)),
+              child: const Text('Keep Practicing', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w500)),
             ),
             ElevatedButton(
               onPressed: () {

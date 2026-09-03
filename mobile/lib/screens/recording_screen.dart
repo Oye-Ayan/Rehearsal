@@ -283,10 +283,11 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: AppTheme.surfaceDark.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
+                          border: Border.all(color: AppTheme.borderDark),
                         ),
-                        child: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                        child: const Icon(Icons.close_rounded, color: AppTheme.textPrimary, size: 24),
                       ),
                     ),
                   ),
@@ -322,7 +323,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                             Text(
                               _formatDuration(_secondsElapsed),
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: AppTheme.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 fontFeatures: [FontFeature.tabularFigures()],
@@ -367,9 +368,9 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.6),
+                    color: AppTheme.surfaceDark.withValues(alpha: 0.85),
                     border: Border(
-                      top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                      top: BorderSide(color: AppTheme.borderDark),
                     ),
                   ),
                   child: Column(
@@ -380,10 +381,11 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                         widget.question['text'] ?? '',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.white, 
+                          color: AppTheme.textPrimary, 
                           fontSize: 16, 
-                          fontWeight: FontWeight.w500,
-                          height: 1.5
+                          fontWeight: FontWeight.w600,
+                          height: 1.5,
+                          letterSpacing: -0.2,
                         ),
                       ),
                       const SizedBox(height: 40),
@@ -451,10 +453,10 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                             const SizedBox(height: 16),
                             Text(
                               _isRecording ? 'Tap to finish' : 'Tap to start recording',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.6),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
                               ),
                             ),

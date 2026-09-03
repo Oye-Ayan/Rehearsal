@@ -50,46 +50,35 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final auth = context.watch<AuthService>();
 
     return Scaffold(
-      backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Stack(
         children: [
-          // Background Orbs
-          Positioned(
-            top: -100,
-            right: -50,
+          // Subtle, ultra-premium background gradient
+          Positioned.fill(
             child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accentPurple.withOpacity(0.1),
-                boxShadow: [
-                  BoxShadow(color: AppTheme.accentPurple.withOpacity(0.1), blurRadius: 100, spreadRadius: 50)
-                ],
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(-0.8, -0.8),
+                  radius: 1.5,
+                  colors: [
+                    Color(0xFF18181B), // Zinc 900
+                    Color(0xFF09090B), // Zinc 950
+                  ],
+                ),
               ),
             ),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 8.seconds, curve: AppTheme.fluidCurve),
-
-          // Glass Noise Filter
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-              child: IgnorePointer(child: Container(color: Colors.transparent)),
-            ),
           ),
-
+          
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 600),
                   switchInCurve: AppTheme.fluidCurve,
@@ -111,60 +100,64 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Icon(Icons.lock_reset_rounded, size: 64, color: AppTheme.textPrimary)
-            .animate().fadeIn(duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        const SizedBox(height: 24),
-        const Text(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.borderDark, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.lock_reset_rounded, size: 32, color: AppTheme.textPrimary),
+          ).animate().fadeIn(duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
+        ),
+        
+        const SizedBox(height: 32),
+        
+        Text(
           'Reset Password',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -1.0,
-          ),
+          textAlign: TextAlign.left,
+          style: Theme.of(context).textTheme.displayMedium,
         ).animate().fadeIn(delay: 100.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        
         const SizedBox(height: 12),
-        const Text(
+        
+        Text(
           'Enter the email address associated with your account and we\'ll send you a link to reset your password.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppTheme.textSecondary, fontSize: 16, height: 1.5),
+          textAlign: TextAlign.left,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
         ).animate().fadeIn(delay: 200.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        
         const SizedBox(height: 48),
 
-        Container(
-          decoration: AppTheme.doubleBezelOuter(),
-          padding: const EdgeInsets.all(4),
-          child: Container(
-            decoration: AppTheme.doubleBezelInner(),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            child: TextField(
-              controller: _emailController,
-              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Email Address',
-                hintStyle: TextStyle(color: AppTheme.textSecondary),
-                icon: Icon(Icons.email_rounded, color: AppTheme.textSecondary),
-              ),
-            ),
+        TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+          decoration: const InputDecoration(
+            labelText: 'Email Address',
+            prefixIcon: Icon(Icons.email_outlined, color: AppTheme.textSecondary),
           ),
         ).animate().fadeIn(delay: 300.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        
         const SizedBox(height: 32),
 
         SizedBox(
-          height: 64,
+          height: 60,
           child: ElevatedButton(
             onPressed: isLoading ? null : _handleReset,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.accentBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            ),
             child: isLoading
-                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                : const Text('Send Reset Link', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: AppTheme.primaryDark, strokeWidth: 3))
+                : const Text('Send Reset Link'),
           ),
         ).animate().fadeIn(delay: 400.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
       ],
@@ -175,36 +168,46 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Column(
       key: const ValueKey('success'),
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppTheme.accentGreen.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.mark_email_read_rounded, size: 64, color: AppTheme.accentGreen),
-        ).animate().fadeIn(duration: 800.ms).scale(begin: const Offset(0.8, 0.8), curve: AppTheme.fluidCurve),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.borderDark, width: 1),
+            ),
+            child: const Icon(Icons.mark_email_read_rounded, size: 32, color: AppTheme.accentIndigo),
+          ).animate().fadeIn(duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
+        ),
+        
         const SizedBox(height: 32),
-        const Text(
-          'Check Your Inbox',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -1.0,
-          ),
-        ).animate().fadeIn(delay: 100.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        const SizedBox(height: 16),
+        
         Text(
-          'We\'ve sent a password reset link to\n${_emailController.text}',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16, height: 1.5),
+          'Check Your Inbox',
+          textAlign: TextAlign.left,
+          style: Theme.of(context).textTheme.displayMedium,
+        ).animate().fadeIn(delay: 100.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        
+        const SizedBox(height: 12),
+        
+        Text(
+          'We\'ve sent a password reset link to ${_emailController.text}',
+          textAlign: TextAlign.left,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
         ).animate().fadeIn(delay: 200.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        
         const SizedBox(height: 48),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Return to Login', style: TextStyle(color: AppTheme.accentBlue, fontSize: 16, fontWeight: FontWeight.w600)),
+        
+        SizedBox(
+          height: 60,
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Return to Login'),
+          ),
         ).animate().fadeIn(delay: 300.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
       ],
     );
