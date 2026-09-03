@@ -3,6 +3,7 @@
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -144,10 +145,17 @@ class AuthService extends ChangeNotifier {
         final body = jsonDecode(response.body);
         return body['message'] ?? 'Google login failed on backend';
       }
+    } on PlatformException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      if (e.code == 'sign_in_canceled') {
+        return 'Google Sign-In canceled';
+      }
+      return 'Google Sign-In error: ${e.message}';
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      return 'Google Sign-In error: ${e.toString()}';
+      return 'An unexpected error occurred: ${e.toString()}';
     }
   }
 

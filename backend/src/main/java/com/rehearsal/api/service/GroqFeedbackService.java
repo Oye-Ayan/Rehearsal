@@ -88,4 +88,50 @@ public class GroqFeedbackService {
             return "Unable to parse AI feedback response.";
         }
     }
+
+    public String generateActionPlan(String qaTranscripts) {
+        if (qaTranscripts == null || qaTranscripts.trim().isEmpty()) {
+            return "No answers recorded to generate an action plan.";
+        }
+
+        String prompt = buildActionPlanPrompt(qaTranscripts);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("role", "user");
+        message.put("content", prompt);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", modelName);
+        requestBody.put("messages", List.of(message));
+        requestBody.put("temperature", 0.7);
+        
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, entity, String.class);
+            return parseResponse(response.getBody());
+        } catch (org.springframework.web.client.RestClientException e) {
+            System.err.println("Groq API RestClientException: " + e.getMessage());
+            return "Unable to generate an action plan due to an API error (Rate limit or timeout).";
+        } catch (Exception e) {
+            System.err.println("Unexpected error generating Action Plan: " + e.getMessage());
+            e.printStackTrace();
+            return "Unable to generate an action plan at this time.";
+        }
+    }
+
+    private String buildActionPlanPrompt(String qaTranscripts) {
+        return String.format(
+            "You are an expert interview coach. A candidate has just finished a mock interview. " +
+            "Here is the transcript of all the questions they were asked and their answers:\n\n%s\n\n" +
+            "Please provide a 3-point action plan for them to improve their interview performance. " +
+            "Focus on overarching themes in their answers, structure, and clarity. Be constructive and specific. " +
+            "Do NOT judge their hireability. Format as a Markdown list.", 
+            qaTranscripts
+        );
+    }
 }

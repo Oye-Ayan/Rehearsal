@@ -27,7 +27,41 @@ public class PracticeSession extends BaseEntity {
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
+    @Column(columnDefinition = "TEXT")
+    private String actionPlan;
+
+    // We can store a comma-separated list or JSON string of keywords
+    @Column(columnDefinition = "TEXT")
+    private String matchKeywords;
+
+    @Column(nullable = false)
+    private boolean pinned = false;
+
     // Getters and Setters
+
+    public boolean isPinned() {
+        return pinned;
+    }
+
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
+    }
+
+    public String getMatchKeywords() {
+        return matchKeywords;
+    }
+
+    public void setMatchKeywords(String matchKeywords) {
+        this.matchKeywords = matchKeywords;
+    }
+
+    public String getActionPlan() {
+        return actionPlan;
+    }
+
+    public void setActionPlan(String actionPlan) {
+        this.actionPlan = actionPlan;
+    }
 
     public User getUser() {
         return user;

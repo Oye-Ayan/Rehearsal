@@ -1,3 +1,16 @@
+// src/test/java/com/rehearsal/api/service/AnswerServiceTest.java
+/*
+// Previous AnswerServiceTest backup:
+@ExtendWith(MockitoExtension.class)
+public class AnswerServiceTest {
+    @Mock private AnswerRepository answerRepository;
+    @Mock private QuestionRepository questionRepository;
+    @Mock private UserRepository userRepository;
+
+    @InjectMocks private AnswerService answerService;
+}
+*/
+
 package com.rehearsal.api.service;
 
 import com.rehearsal.api.domain.Answer;
@@ -19,6 +32,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +44,8 @@ public class AnswerServiceTest {
     private QuestionRepository questionRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private GroqFeedbackService feedbackService;
 
     @InjectMocks
     private AnswerService answerService;
@@ -51,6 +67,7 @@ public class AnswerServiceTest {
         mockQuestion = new Question();
         mockQuestion.setId(1L);
         mockQuestion.setSession(mockSession);
+        mockQuestion.setText("Tell me about yourself.");
     }
 
     @Test
@@ -65,6 +82,7 @@ public class AnswerServiceTest {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mockUser));
         when(questionRepository.findById(1L)).thenReturn(Optional.of(mockQuestion));
         when(answerRepository.findByQuestionId(1L)).thenReturn(Optional.empty());
+        when(feedbackService.generateFeedback(anyString(), anyString())).thenReturn("Great clear answer!");
         when(answerRepository.save(any(Answer.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // Act
@@ -76,6 +94,7 @@ public class AnswerServiceTest {
         assertEquals(120, saved.getWpm());
         assertEquals(2, saved.getFillerWordCount());
         assertEquals(5.0, saved.getFillerWordRate());
+        assertEquals("Great clear answer!", saved.getAiFeedback());
         verify(answerRepository, times(1)).save(any(Answer.class));
     }
 }
