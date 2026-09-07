@@ -141,7 +141,7 @@ class _ReportScreenState extends State<ReportScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to generate PDF. Please try again.'), backgroundColor: AppTheme.errorRed),
+        const SnackBar(content: Text('Failed to generate PDF. Please try again.'), backgroundColor: AppTheme.alertCoral),
       );
     }
   }
@@ -151,10 +151,11 @@ class _ReportScreenState extends State<ReportScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark ? Colors.black : AppTheme.primaryLight;
+    final backgroundColor = isDark ? AppTheme.primaryDark : AppTheme.primaryLight;
     final textPrimaryColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final textSecondaryColor = isDark ? AppTheme.textSecondary : AppTheme.textSecondaryLight;
     final textMutedColor = isDark ? AppTheme.textMuted : AppTheme.textMutedLight;
+    final primaryAction = AppTheme.primaryActionColor(isDark);
 
     final displaySessionTitle = widget.userSessionNumber != null ? 'Session #${widget.userSessionNumber}' : 'Session #${widget.sessionId}';
 
@@ -172,8 +173,8 @@ class _ReportScreenState extends State<ReportScreen> {
         actions: [
           IconButton(
             icon: _isDownloadingPdf
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentBlue))
-                : const Icon(Icons.picture_as_pdf_rounded, color: AppTheme.accentBlue),
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryAction))
+                : Icon(Icons.picture_as_pdf_rounded, color: primaryAction),
             onPressed: _isDownloadingPdf ? null : _downloadPdf,
             tooltip: 'Download PDF Report',
           ),
@@ -457,10 +458,10 @@ class _ReportScreenState extends State<ReportScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withValues(alpha: 0.15),
+                  color: (isDark ? AppTheme.glowingAmber : AppTheme.confidenceTeal).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.accentBlue, size: 20),
+                child: Icon(Icons.auto_awesome_rounded, color: isDark ? AppTheme.glowingAmber : AppTheme.confidenceTeal, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -565,7 +566,7 @@ class _ReportScreenState extends State<ReportScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? Colors.black.withValues(alpha: 0.3) : AppTheme.primaryLight,
+                color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -577,7 +578,7 @@ class _ReportScreenState extends State<ReportScreen> {
           ],
 
           if (feedback != null && (feedback as String).isNotEmpty) ...[
-            Text('AI Feedback:', style: TextStyle(color: AppTheme.accentGreen, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text('AI Feedback:', style: TextStyle(color: isDark ? AppTheme.glowingAmber : AppTheme.confidenceTeal, fontSize: 12, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
             Text(
               feedback,

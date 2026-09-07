@@ -56,6 +56,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthService>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -67,17 +69,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: Stack(
         children: [
-          // Subtle, ultra-premium background gradient
+          // 60-30-10 Background Gradient (Soft Ice Blue / White in Light; Midnight Blue-Gray / Dark Charcoal in Dark)
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment(-0.8, -0.8),
+                  center: const Alignment(-0.8, -0.8),
                   radius: 1.5,
-                  colors: [
-                    Color(0xFF18181B), // Zinc 900
-                    Color(0xFF09090B), // Zinc 950
-                  ],
+                  colors: isDark
+                      ? const [
+                          AppTheme.midnightBlueGray,
+                          AppTheme.darkCharcoal,
+                        ]
+                      : const [
+                          AppTheme.pureWhite,
+                          AppTheme.softIceBlue,
+                        ],
                 ),
               ),
             ),
@@ -103,7 +110,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                       Text(
                         'Start your interview preparation journey today.',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: isDark ? AppTheme.slateGray : AppTheme.mutedCoolGray,
+                        ),
                         textAlign: TextAlign.left,
                       ).animate().fadeIn(delay: 100.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
                       
@@ -171,10 +180,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: ElevatedButton(
                           onPressed: auth.isLoading ? null : _register,
                           child: auth.isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(AppTheme.primaryDark)),
+                                  child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(isDark ? AppTheme.primaryDark : Colors.white)),
                                 )
                               : const Text('Sign Up'),
                         ),

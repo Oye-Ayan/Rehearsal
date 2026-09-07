@@ -3,52 +3,75 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Premium "Pro Max" Palette (Zinc / Slate based)
-  static const Color primaryDark = Color(0xFF09090B); // Zinc 950
-  static const Color surfaceDark = Color(0xFF18181B); // Zinc 900
-  static const Color cardDark = Color(0xFF27272A); // Zinc 800
-  static const Color borderDark = Color(0xFF3F3F46); // Zinc 700
-  
-  // Light Palette
-  static const Color primaryLight = Color(0xFFF4F4F5); // Zinc 100
-  static const Color surfaceLight = Color(0xFFFFFFFF); // White
-  static const Color cardLight = Color(0xFFFAFAFA); // Zinc 50
-  static const Color borderLight = Color(0xFFE4E4E7); // Zinc 200
+  // ==========================================
+  // LIGHT MODE PALETTE (60-30-10 Rule)
+  // ==========================================
+  // Dominant Background (60%): Pure White (#FFFFFF) & Soft Ice Blue (#F4F7FA)
+  static const Color pureWhite = Color(0xFFFFFFFF);
+  static const Color softIceBlue = Color(0xFFF4F7FA);
+  static const Color primaryLight = Color(0xFFF4F7FA); // Soft Ice Blue scaffold
+  static const Color surfaceLight = Color(0xFFFFFFFF); // Pure White cards/inputs
+  static const Color cardLight = Color(0xFFFFFFFF);
+  static const Color borderLight = Color(0xFFE2E8F0); // Slate 200 structural outline
 
-  // Cohesive High-End Accent Palette (Unified Electric Cyan & Specular Blue)
-  // Previous colors backup:
-  // static const Color accentIndigo = Color(0xFF6366F1);
-  // static const Color accentGreen = Color(0xFF10B981);
-  // static const Color accentPurple = Color(0xFF8B5CF6);
+  // Structural Text & Cards (30%): Deep Slate Blue (#1E293B) & Muted Cool Gray (#64748B)
+  static const Color deepSlateBlue = Color(0xFF1E293B);
+  static const Color mutedCoolGray = Color(0xFF64748B);
+  static const Color textPrimaryLight = Color(0xFF1E293B); // Deep Slate Blue replaces harsh pure black
+  static const Color textSecondaryLight = Color(0xFF64748B); // Muted Cool Gray
+  static const Color textMutedLight = Color(0xFF94A3B8); // Slate 400
 
-  static const Color accentBlue = Color(0xFF38BDF8); // Electric Sky Cyan/Blue
-  static const Color accentIndigo = Color(0xFF2563EB); // Specular Royal Blue
-  static const Color accentCyan = Color(0xFF0EA5E9); // Deep Cyan Accent
-  static const Color accentSilver = Color(0xFFA1A1AA); // Specular Slate
-  
-  // Backward compatibility aliases aligned to unified Electric Cyan & Specular Blue
-  static const Color accentGreen = Color(0xFF38BDF8); // Electric Sky Cyan
-  static const Color accentPurple = Color(0xFF2563EB); // Specular Royal Blue
-  
-  static const Color textPrimary = Color(0xFFFAFAFA); // Zinc 50
-  static const Color textSecondary = Color(0xFFA1A1AA); // Zinc 400
-  static const Color textMuted = Color(0xFF71717A); // Zinc 500
-  static const Color errorRed = Color(0xFFF87171); // Red 400
+  // Accent & Interactive (10%): Confidence Teal (#0D9488) & Alert Coral (#F43F5E)
+  static const Color confidenceTeal = Color(0xFF0D9488); // Primary action color ("Start Interview", "Record Answer")
+  static const Color alertCoral = Color(0xFFF43F5E); // Strictly for live recording indicator or error states
 
-  static const Color textPrimaryLight = Color(0xFF09090B); // Zinc 950
-  static const Color textSecondaryLight = Color(0xFF52525B); // Zinc 600
-  static const Color textMutedLight = Color(0xFFA1A1AA); // Zinc 400
+  // ==========================================
+  // DARK MODE PALETTE (60-30-10 Rule)
+  // ==========================================
+  // Dominant Background (60%): Midnight Blue-Gray (#0F172A) & Dark Charcoal (#1E293B)
+  static const Color midnightBlueGray = Color(0xFF0F172A);
+  static const Color darkCharcoal = Color(0xFF1E293B);
+  static const Color primaryDark = Color(0xFF0F172A); // Midnight Blue-Gray (avoids pure black to prevent severe contrast glare)
+  static const Color surfaceDark = Color(0xFF1E293B); // Dark Charcoal surface & cards
+  static const Color cardDark = Color(0xFF1E293B);
+  static const Color borderDark = Color(0xFF334155); // Slate 700 structural outline
+
+  // Structural Text & Cards (30%): Crisp Off-White (#F8FAFC) & Slate Gray (#94A3B8)
+  static const Color crispOffWhite = Color(0xFFF8FAFC);
+  static const Color slateGray = Color(0xFF94A3B8);
+  static const Color textPrimary = Color(0xFFF8FAFC); // Crisp Off-White pops clearly without eyestrain
+  static const Color textSecondary = Color(0xFF94A3B8); // Slate Gray
+  static const Color textMuted = Color(0xFF64748B); // Muted Cool Gray
+
+  // Accent & Interactive (10%): Electric Teal (#14B8A6) & Glowing Amber (#F59E0B)
+  static const Color electricTeal = Color(0xFF14B8A6); // High-visibility luminous teal for interactive actions
+  static const Color glowingAmber = Color(0xFFF59E0B); // Feedback highlights & tip callouts
+
+  // Backward compatibility & semantic aliases
+  static const Color accentBlue = electricTeal; // Electric Teal
+  static const Color accentIndigo = confidenceTeal; // Confidence Teal
+  static const Color accentCyan = electricTeal;
+  static const Color accentGreen = confidenceTeal;
+  static const Color accentPurple = electricTeal;
+  static const Color accentAmber = glowingAmber;
+  static const Color accentSilver = slateGray; // Crisp Slate Gray (#94A3B8)
+  static const Color errorRed = alertCoral; // Alert Coral (#F43F5E)
+  static const Color recordingRed = alertCoral; // Alert Coral (#F43F5E)
+
+  // Dynamic helper for interactive actions
+  static Color primaryActionColor(bool isDark) => isDark ? electricTeal : confidenceTeal;
+  static Color feedbackHighlightColor(bool isDark) => isDark ? glowingAmber : confidenceTeal;
 
   // Liquid Glass Aesthetic Colors & Gradients
-  static const Color glassBorderDark = Color(0x26FFFFFF); // 15% White specular stroke
-  static const Color glassBorderLight = Color(0x33000000); // 20% Dark specular stroke
+  static const Color glassBorderDark = Color(0x33334155); // Slate 700 specular stroke
+  static const Color glassBorderLight = Color(0x66E2E8F0); // Slate 200 specular stroke
   
   static const LinearGradient liquidGlassGradientDark = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0x24FFFFFF), // Translucent specular top-left highlight
-      Color(0x0CFFFFFF), // Soft liquid glass surface
+      Color(0xCC1E293B), // Dark Charcoal glass with specular highlight
+      Color(0xE60F172A), // Midnight Blue-Gray base
     ],
   );
 
@@ -56,8 +79,8 @@ class AppTheme {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xCCFFFFFF), // Frosted glass light surface
-      Color(0x99FFFFFF), // Soft reflection
+      Color(0xF2FFFFFF), // Frosted Pure White surface
+      Color(0xE6F4F7FA), // Soft Ice Blue tint
     ],
   );
 
@@ -83,7 +106,7 @@ class AppTheme {
       ),
       boxShadow: [
         BoxShadow(
-          color: isDark ? Colors.black.withValues(alpha: 0.25) : accentBlue.withValues(alpha: 0.06),
+          color: isDark ? Colors.black.withValues(alpha: 0.3) : const Color(0x0F0F172A),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),
@@ -125,12 +148,12 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: primaryDark,
       colorScheme: const ColorScheme.dark(
-        primary: textPrimary,
-        secondary: accentBlue,
+        primary: electricTeal,
+        secondary: glowingAmber,
         surface: surfaceDark,
-        error: errorRed,
+        error: alertCoral,
         onPrimary: primaryDark,
-        onSecondary: Colors.white,
+        onSecondary: primaryDark,
         onSurface: textPrimary,
       ),
       textTheme: GoogleFonts.interTextTheme(
@@ -152,7 +175,7 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           color: textPrimary,
           letterSpacing: -0.2,
         ),
@@ -160,12 +183,12 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: textPrimary,
+          backgroundColor: electricTeal,
           foregroundColor: primaryDark,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.1),
+          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.1),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -187,21 +210,21 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          borderSide: const BorderSide(color: borderDark),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.25), width: 1.5),
+          borderSide: const BorderSide(color: electricTeal, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: errorRed),
+          borderSide: const BorderSide(color: alertCoral),
         ),
         labelStyle: const TextStyle(color: textSecondary),
         hintStyle: const TextStyle(color: textMuted),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: cardDark,
+        backgroundColor: surfaceDark,
         contentTextStyle: GoogleFonts.inter(color: textPrimary, fontWeight: FontWeight.w500),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -218,10 +241,10 @@ class AppTheme {
       brightness: Brightness.light,
       scaffoldBackgroundColor: primaryLight,
       colorScheme: const ColorScheme.light(
-        primary: textPrimaryLight,
-        secondary: accentBlue,
+        primary: confidenceTeal,
+        secondary: confidenceTeal,
         surface: surfaceLight,
-        error: errorRed,
+        error: alertCoral,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textPrimaryLight,
@@ -245,7 +268,7 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           color: textPrimaryLight,
           letterSpacing: -0.2,
         ),
@@ -253,12 +276,12 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: textPrimaryLight,
+          backgroundColor: confidenceTeal,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.1),
+          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.1),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -284,11 +307,11 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: accentBlue, width: 1.5),
+          borderSide: const BorderSide(color: confidenceTeal, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: errorRed),
+          borderSide: const BorderSide(color: alertCoral),
         ),
         labelStyle: const TextStyle(color: textSecondaryLight),
         hintStyle: const TextStyle(color: textMutedLight),

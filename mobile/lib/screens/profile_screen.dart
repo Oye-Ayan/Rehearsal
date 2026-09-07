@@ -103,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: InputDecoration(
                       hintText: 'Enter new username',
                       filled: true,
-                      fillColor: isDark ? Colors.black.withValues(alpha: 0.3) : AppTheme.primaryLight,
+                      fillColor: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
                   ),
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final isDark = theme.brightness == Brightness.dark;
     final themeNotifier = context.watch<ThemeNotifier>();
 
-    final backgroundColor = isDark ? Colors.black : AppTheme.primaryLight;
+    final backgroundColor = isDark ? AppTheme.primaryDark : AppTheme.primaryLight;
     final textPrimaryColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final textSecondaryColor = isDark ? AppTheme.textSecondary : AppTheme.textSecondaryLight;
     final textMutedColor = isDark ? AppTheme.textMuted : AppTheme.textMutedLight;

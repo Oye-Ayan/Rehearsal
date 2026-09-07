@@ -1,16 +1,3 @@
-// src/test/java/com/rehearsal/api/service/AnswerServiceTest.java
-/*
-// Previous AnswerServiceTest backup:
-@ExtendWith(MockitoExtension.class)
-public class AnswerServiceTest {
-    @Mock private AnswerRepository answerRepository;
-    @Mock private QuestionRepository questionRepository;
-    @Mock private UserRepository userRepository;
-
-    @InjectMocks private AnswerService answerService;
-}
-*/
-
 package com.rehearsal.api.service;
 
 import com.rehearsal.api.domain.Answer;

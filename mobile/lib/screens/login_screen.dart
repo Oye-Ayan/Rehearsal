@@ -57,21 +57,29 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthService>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final primaryAction = AppTheme.primaryActionColor(isDark);
 
     return Scaffold(
       body: Stack(
         children: [
-          // Subtle, ultra-premium background gradient
+          // 60-30-10 Background Gradient (Soft Ice Blue / White in Light; Midnight Blue-Gray / Dark Charcoal in Dark)
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment(-0.8, -0.8),
+                  center: const Alignment(-0.8, -0.8),
                   radius: 1.5,
-                  colors: [
-                    Color(0xFF18181B), // Zinc 900
-                    Color(0xFF09090B), // Zinc 950
-                  ],
+                  colors: isDark
+                      ? const [
+                          AppTheme.midnightBlueGray,
+                          AppTheme.darkCharcoal,
+                        ]
+                      : const [
+                          AppTheme.pureWhite,
+                          AppTheme.softIceBlue,
+                        ],
                 ),
               ),
             ),
@@ -85,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch, // Make children fill width
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Logo / Brand
                       Align(
@@ -94,18 +102,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: AppTheme.surfaceDark,
+                            color: isDark ? AppTheme.surfaceDark : Colors.white,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppTheme.borderDark, width: 1),
+                            border: Border.all(color: isDark ? AppTheme.borderDark : AppTheme.borderLight, width: 1),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: (isDark ? Colors.black : AppTheme.slateGray).withValues(alpha: 0.15),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.mic_rounded, size: 32, color: AppTheme.textPrimary),
+                          child: Icon(Icons.mic_rounded, size: 32, color: primaryAction),
                         ).animate().fadeIn(duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
                       ),
                       
@@ -121,7 +129,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       
                       Text(
                         'Sign in to continue your interview preparation.',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: isDark ? AppTheme.slateGray : AppTheme.mutedCoolGray,
+                        ),
                         textAlign: TextAlign.left,
                       ).animate().fadeIn(delay: 300.ms, duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.1),
                       
@@ -180,10 +190,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             'Forgot Password?',
                             style: TextStyle(
-                              color: AppTheme.textSecondary,
+                              color: primaryAction,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -199,10 +209,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: auth.isLoading ? null : _login,
                           child: auth.isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(AppTheme.primaryDark)),
+                                  child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(isDark ? AppTheme.primaryDark : Colors.white)),
                                 )
                               : const Text('Sign In'),
                         ),
@@ -213,12 +223,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Divider
                       Row(
                         children: [
-                          Expanded(child: Divider(color: AppTheme.borderDark)),
+                          Expanded(child: Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight)),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text('OR', style: TextStyle(color: AppTheme.textMuted, fontSize: 12, fontWeight: FontWeight.w600)),
+                            child: Text('OR', style: TextStyle(color: isDark ? AppTheme.slateGray : AppTheme.mutedCoolGray, fontSize: 12, fontWeight: FontWeight.w600)),
                           ),
-                          Expanded(child: Divider(color: AppTheme.borderDark)),
+                          Expanded(child: Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight)),
                         ],
                       ).animate().fadeIn(delay: 600.ms, duration: 800.ms),
 
@@ -236,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             
                             if (loginError != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(loginError), backgroundColor: AppTheme.errorRed),
+                                SnackBar(content: Text(loginError), backgroundColor: AppTheme.alertCoral),
                               );
                             } else {
                               Navigator.of(context).pushReplacement(
@@ -268,9 +278,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               );
                             },
-                            child: const Text(
+                            child: Text(
                               'Sign Up',
-                              style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: primaryAction, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],

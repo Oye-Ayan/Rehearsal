@@ -35,4 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
-application.properties
+
+# Local Secrets
+*-secret.properties
+application-secret.properties

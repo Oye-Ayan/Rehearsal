@@ -128,7 +128,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark ? Colors.black : AppTheme.primaryLight;
+    final backgroundColor = isDark ? AppTheme.primaryDark : AppTheme.primaryLight;
     final textPrimaryColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final textSecondaryColor = isDark ? AppTheme.textSecondary : AppTheme.textSecondaryLight;
     final textMutedColor = isDark ? AppTheme.textMuted : AppTheme.textMutedLight;
@@ -400,7 +400,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
           child: ElevatedButton(
             onPressed: (_isCreatingSession || _jdController.text.trim().isEmpty) ? null : _createSession,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.accentBlue,
+              backgroundColor: AppTheme.primaryActionColor(isDark),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             child: _isCreatingSession

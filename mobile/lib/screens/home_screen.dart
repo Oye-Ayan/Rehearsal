@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark ? Colors.black : AppTheme.primaryLight;
+    final backgroundColor = isDark ? AppTheme.primaryDark : AppTheme.primaryLight;
     final textPrimaryColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final textSecondaryColor = isDark ? AppTheme.textSecondary : AppTheme.textSecondaryLight;
     final textMutedColor = isDark ? AppTheme.textMuted : AppTheme.textMutedLight;
@@ -346,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.accentBlue,
+                                    color: AppTheme.primaryActionColor(isDark),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: const Row(

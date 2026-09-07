@@ -199,7 +199,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error uploading answer: $e'),
-            backgroundColor: AppTheme.errorRed,
+            backgroundColor: AppTheme.alertCoral,
           )
         );
       }
@@ -213,20 +213,20 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
       builder: (ctx) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: AlertDialog(
-          backgroundColor: AppTheme.surfaceDark.withValues(alpha: 0.85),
+          backgroundColor: AppTheme.surfaceDark.withValues(alpha: 0.92),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+            side: BorderSide(color: AppTheme.borderDark),
           ),
           title: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
-                  color: AppTheme.accentGreen,
+                  color: AppTheme.electricTeal,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_rounded, color: Colors.white, size: 20),
+                child: const Icon(Icons.check_rounded, color: AppTheme.primaryDark, size: 20),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -388,9 +388,9 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: _isRecording ? AppTheme.errorRed : Colors.black.withValues(alpha: 0.5),
+                          color: _isRecording ? AppTheme.alertCoral : AppTheme.surfaceDark.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(100),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                          border: Border.all(color: _isRecording ? AppTheme.alertCoral : AppTheme.borderDark),
                         ),
                         child: Row(
                           children: [
@@ -458,7 +458,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                 Padding(
                   padding: const EdgeInsets.only(bottom: 36),
                   child: _isProcessing
-                      ? const CircularProgressIndicator(color: AppTheme.accentBlue)
+                      ? const CircularProgressIndicator(color: AppTheme.electricTeal)
                       : GestureDetector(
                           onTap: _isRecording ? _stopRecording : _startRecording,
                           child: ScaleTransition(
@@ -468,10 +468,10 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                               height: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: _isRecording ? AppTheme.errorRed : AppTheme.accentBlue,
+                                color: _isRecording ? AppTheme.alertCoral : AppTheme.electricTeal,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (_isRecording ? AppTheme.errorRed : AppTheme.accentBlue).withValues(alpha: 0.4),
+                                    color: (_isRecording ? AppTheme.alertCoral : AppTheme.electricTeal).withValues(alpha: 0.45),
                                     blurRadius: 24,
                                     spreadRadius: 4,
                                   ),
@@ -479,7 +479,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                               ),
                               child: Icon(
                                 _isRecording ? Icons.stop_rounded : Icons.mic_rounded,
-                                color: Colors.white,
+                                color: _isRecording ? Colors.white : AppTheme.primaryDark,
                                 size: 36,
                               ),
                             ),
@@ -499,7 +499,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
       children: [
         Positioned.fill(
           child: Container(
-            color: const Color(0xFF09090B),
+            color: AppTheme.midnightBlueGray,
           ),
         ),
         Center(
@@ -515,7 +515,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                     height: 260 + (val * 40),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.accentBlue.withValues(alpha: 0.08 + (val * 0.1)),
+                      color: (_isRecording ? AppTheme.alertCoral : AppTheme.electricTeal).withValues(alpha: 0.08 + (val * 0.1)),
                     ),
                   ),
                   Container(
@@ -523,7 +523,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
                     height: 180 + (val * 20),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.accentIndigo.withValues(alpha: 0.15 + (val * 0.1)),
+                      color: (_isRecording ? AppTheme.alertCoral : AppTheme.confidenceTeal).withValues(alpha: 0.15 + (val * 0.1)),
                     ),
                   ),
                   AppTheme.glassCard(

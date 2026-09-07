@@ -40,13 +40,94 @@ public class AuthService {
     @Value("${app.reset-password.url-scheme:rehearsal://reset-password?token=}")
     private String resetPasswordUrlScheme;
 
-    public AuthService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
+    @Value("${app.reset-password.web-url:http://10.10.20.121:8080/reset-password?token=}")
+    private String webResetUrl;
+
+    public AuthService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService,
+            AuthenticationManager authenticationManager, PasswordResetTokenRepository tokenRepository,
+            EmailService emailService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.tokenRepository = tokenRepository;
         this.emailService = emailService;
+    }
+
+    private String hashToken(String rawToken) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(rawToken.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not available", e);
+        }
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void forgotPassword(String email) {
+        System.out.println("AuthService: Secure forgot-password request for: " + email);
+        User user = repository.findByEmail(email).orElse(null);
+        if (user == null) {
+            // Constant-time mitigation against timing attacks / email enumeration
+            hashToken("dummy-salt-" + email);
+            System.out.println("AuthService: User not found (anti-enumeration return).");
+            return;
+        }
+
+        // Delete any existing tokens for this user immediately
+        tokenRepository.deleteByUser(user);
+        tokenRepository.flush();
+
+        // Generate 128-bit cryptographically secure raw token
+        String rawToken = UUID.randomUUID().toString();
+        String tokenHash = hashToken(rawToken);
+
+        // Enforce strict 15-minute single-use expiration
+        PasswordResetToken token = new PasswordResetToken(tokenHash, user, LocalDateTime.now().plusMinutes(15));
+        tokenRepository.save(token);
+
+        String webLink = (webResetUrl != null && !webResetUrl.isBlank() ? webResetUrl
+                : "http://10.10.20.121:8080/reset-password?token=") + rawToken;
+        String appLink = (resetPasswordUrlScheme != null && !resetPasswordUrlScheme.isBlank() ? resetPasswordUrlScheme
+                : "rehearsal://reset-password?token=") + rawToken;
+
+        emailService.sendPasswordResetEmail(user.getEmail(), rawToken, webLink, appLink);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void resetPassword(String rawToken, String newPassword) {
+        if (rawToken == null || rawToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("Reset token is required");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+
+        String tokenHash = hashToken(rawToken.trim());
+        PasswordResetToken token = tokenRepository.findByToken(tokenHash)
+                .or(() -> tokenRepository.findByToken(rawToken.trim())) // Backward-compatibility fallback for in-flight
+                                                                        // tokens
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
+
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            tokenRepository.delete(token);
+            throw new IllegalArgumentException("Reset token has expired (validity is 15 minutes)");
+        }
+
+        User user = token.getUser();
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        repository.save(user);
+
+        // Delete token immediately to enforce single-use
+        tokenRepository.delete(token);
     }
 
     public AuthResponse register(AuthRequest request) {
@@ -57,7 +138,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        
+
         repository.save(user);
 
         String jwtToken = jwtService.generateToken(new CustomUserDetails(user));
@@ -68,20 +149,19 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
-                        request.getPassword()
-                )
-        );
-        
+                        request.getPassword()));
+
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
-                
+
         String jwtToken = jwtService.generateToken(new CustomUserDetails(user));
         return new AuthResponse(jwtToken);
     }
 
     public AuthResponse googleLogin(String idTokenString) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),
+                    GsonFactory.getDefaultInstance())
                     .setAudience(Collections.singletonList(googleClientId))
                     .build();
 
@@ -107,50 +187,5 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to verify Google token", e);
         }
-    }
-
-    @org.springframework.transaction.annotation.Transactional
-    public void forgotPassword(String email) {
-        System.out.println("AuthService: looking up user by email: " + email);
-        User user = repository.findByEmail(email).orElse(null);
-        if (user == null) {
-            System.out.println("AuthService: User not found for email: " + email);
-            // Silently return to prevent email enumeration attacks
-            return;
-        }
-        System.out.println("AuthService: User found. Generating token...");
-
-        // Delete any existing tokens for this user and flush to avoid unique constraint violations
-        tokenRepository.deleteByUser(user);
-        tokenRepository.flush();
-
-        // Create new token
-        String tokenStr = UUID.randomUUID().toString();
-        PasswordResetToken token = new PasswordResetToken(tokenStr, user, LocalDateTime.now().plusHours(1));
-        tokenRepository.save(token);
-
-        // Previous code backup:
-        // String resetLink = "https://rehearsal.app/reset-password?token=" + tokenStr;
-
-        String resetLink = (resetPasswordUrlScheme != null ? resetPasswordUrlScheme : "rehearsal://reset-password?token=") + tokenStr;
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
-    }
-
-    @org.springframework.transaction.annotation.Transactional
-    public void resetPassword(String tokenStr, String newPassword) {
-        PasswordResetToken token = tokenRepository.findByToken(tokenStr)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired token"));
-
-        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            tokenRepository.delete(token);
-            throw new IllegalArgumentException("Token has expired");
-        }
-
-        User user = token.getUser();
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
-        repository.save(user);
-
-        // Delete token after successful reset
-        tokenRepository.delete(token);
     }
 }

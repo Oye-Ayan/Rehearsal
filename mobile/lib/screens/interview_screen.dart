@@ -207,10 +207,6 @@ class _InterviewScreenState extends State<InterviewScreen> {
   }
 
   Color _getScoreColor(int score) {
-    // Previous colors backup:
-    // if (score >= 80) return AppTheme.accentGreen;
-    // if (score >= 60) return AppTheme.accentBlue;
-    // if (score >= 40) return Colors.amber;
     if (score >= 80) return AppTheme.accentBlue;
     if (score >= 60) return AppTheme.accentIndigo;
     if (score >= 40) return AppTheme.accentSilver;
@@ -273,7 +269,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark ? Colors.black : AppTheme.primaryLight;
+    final backgroundColor = isDark ? AppTheme.primaryDark : AppTheme.primaryLight;
     final textPrimaryColor = isDark ? AppTheme.textPrimary : AppTheme.textPrimaryLight;
     final textSecondaryColor = isDark ? AppTheme.textSecondary : AppTheme.textSecondaryLight;
 
