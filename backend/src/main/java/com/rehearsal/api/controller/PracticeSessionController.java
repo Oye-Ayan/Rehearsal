@@ -100,15 +100,44 @@ public class PracticeSessionController {
 
     // ── PDF Export ──
     @GetMapping("/{id}/export-pdf")
-    public ResponseEntity<byte[]> exportSessionPdf(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<byte[]> exportSessionPdf(
+            @PathVariable Long id,
+            @RequestParam(required = false) Integer userSessionNumber,
+            Authentication authentication) {
         PracticeSession session = practiceSessionRepository.findById(id).orElse(null);
         if (session == null) return ResponseEntity.notFound().build();
 
-        byte[] pdfBytes = pdfExportService.generateSessionPdf(session);
+        int sessionNum;
+        if (userSessionNumber != null && userSessionNumber > 0) {
+            sessionNum = userSessionNumber;
+        } else {
+            String userEmail = (authentication != null && authentication.getName() != null)
+                    ? authentication.getName()
+                    : (session.getUser() != null ? session.getUser().getEmail() : null);
+            if (userEmail != null) {
+                List<PracticeSession> userSessions = practiceSessionRepository.findByUserEmailOrderByCreatedAtDesc(userEmail);
+                int index = -1;
+                for (int i = 0; i < userSessions.size(); i++) {
+                    if (userSessions.get(i).getId().equals(session.getId())) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    sessionNum = userSessions.size() - index;
+                } else {
+                    sessionNum = session.getId().intValue();
+                }
+            } else {
+                sessionNum = session.getId().intValue();
+            }
+        }
+
+        byte[] pdfBytes = pdfExportService.generateSessionPdf(session, sessionNum);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "rehearsal_session_" + id + ".pdf");
+        headers.setContentDispositionFormData("attachment", "rehearsal_session_" + sessionNum + ".pdf");
 
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }

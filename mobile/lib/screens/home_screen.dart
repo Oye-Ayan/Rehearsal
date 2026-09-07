@@ -183,18 +183,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber.withValues(alpha: 0.15),
+                                            color: AppTheme.accentBlue.withValues(alpha: 0.15),
                                             borderRadius: BorderRadius.circular(100),
-                                            border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                                            border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.4)),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Icon(Icons.local_fire_department_rounded, color: Colors.amber, size: 12),
+                                              const Icon(Icons.local_fire_department_rounded, color: AppTheme.accentBlue, size: 12),
                                               const SizedBox(width: 3),
                                               Text(
                                                 '${(_historyList?.length ?? 0) > 0 ? (_historyList!.length.clamp(1, 7)) : 0}d streak',
-                                                style: const TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.bold),
+                                                style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10, fontWeight: FontWeight.bold),
                                               ),
                                             ],
                                           ),
@@ -611,7 +611,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 18,
                       height: (score / 100 * 42).clamp(12.0, 42.0),
                       decoration: BoxDecoration(
-                        color: score >= 75 ? AppTheme.accentGreen : (score >= 50 ? AppTheme.accentBlue : Colors.amber),
+                        color: score >= 75 ? AppTheme.accentBlue : (score >= 50 ? AppTheme.accentIndigo : AppTheme.accentSilver),
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),

@@ -74,3 +74,4 @@ backend/.mvn/wrapper/maven-wrapper.jar
 backend/dependency-reduced-pom.xml
 
 backend/application.properties
+skills-lock.json

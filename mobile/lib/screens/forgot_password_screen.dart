@@ -1,3 +1,8 @@
+// Backup of previous ForgotPasswordScreen code is preserved below as comment:
+/*
+class ForgotPasswordScreen extends StatefulWidget { ... }
+*/
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -5,7 +10,9 @@ import '../core/theme.dart';
 import '../services/auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  final String? initialToken;
+
+  const ForgotPasswordScreen({super.key, this.initialToken});
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -13,19 +20,38 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
+  final _tokenController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
   bool _isSent = false;
+  bool _isTokenMode = false;
+  bool _resetComplete = false;
+  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialToken != null && widget.initialToken!.isNotEmpty) {
+      _tokenController.text = widget.initialToken!;
+      _isTokenMode = true;
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _tokenController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleReset() async {
+  Future<void> _handleSendResetLink() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email'), backgroundColor: AppTheme.errorRed),
+        const SnackBar(content: Text('Please enter your email address'), backgroundColor: AppTheme.errorRed),
       );
       return;
     }
@@ -37,6 +63,48 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     if (error == null) {
       setState(() => _isSent = true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: AppTheme.errorRed),
+      );
+    }
+  }
+
+  Future<void> _handleConfirmReset() async {
+    final token = _tokenController.text.trim();
+    final newPassword = _newPasswordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your reset token'), backgroundColor: AppTheme.errorRed),
+      );
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters'), backgroundColor: AppTheme.errorRed),
+      );
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match'), backgroundColor: AppTheme.errorRed),
+      );
+      return;
+    }
+
+    final authService = context.read<AuthService>();
+    final error = await authService.resetPassword(token, newPassword);
+
+    if (!mounted) return;
+
+    if (error == null) {
+      setState(() {
+        _resetComplete = true;
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: AppTheme.errorRed),
@@ -58,7 +126,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
       body: Stack(
         children: [
-          // Subtle, ultra-premium background gradient
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
@@ -66,24 +133,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   center: Alignment(-0.8, -0.8),
                   radius: 1.5,
                   colors: [
-                    Color(0xFF18181B), // Zinc 900
-                    Color(0xFF09090B), // Zinc 950
+                    Color(0xFF0F172A), // Slate 900
+                    Color(0xFF090D16), // Midnight Dark
                   ],
                 ),
               ),
             ),
           ),
-          
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 600),
+                  duration: const Duration(milliseconds: 500),
                   switchInCurve: AppTheme.fluidCurve,
                   switchOutCurve: Curves.easeInCubic,
                   transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-                  child: _isSent ? _buildSuccessView() : _buildFormView(auth.isLoading),
+                  child: _resetComplete
+                      ? _buildResetCompleteView()
+                      : _isTokenMode
+                          ? _buildTokenResetFormView(auth.isLoading)
+                          : _isSent
+                              ? _buildSuccessView()
+                              : _buildEmailFormView(auth.isLoading),
                 ),
               ),
             ),
@@ -93,9 +165,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _buildFormView(bool isLoading) {
+  Widget _buildEmailFormView(bool isLoading) {
     return Column(
-      key: const ValueKey('form'),
+      key: const ValueKey('email_form'),
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -108,36 +180,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               color: AppTheme.surfaceDark,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppTheme.borderDark, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
             ),
-            child: const Icon(Icons.lock_reset_rounded, size: 32, color: AppTheme.textPrimary),
-          ).animate().fadeIn(duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
+            child: const Icon(Icons.lock_reset_rounded, size: 32, color: AppTheme.accentBlue),
+          ).animate().fadeIn(duration: 600.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
         ),
-        
-        const SizedBox(height: 32),
-        
+        const SizedBox(height: 28),
         Text(
           'Reset Password',
-          textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.displayMedium,
-        ).animate().fadeIn(delay: 100.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        
+        ).animate().fadeIn(delay: 100.ms, duration: 600.ms).slideY(begin: 0.2),
         const SizedBox(height: 12),
-        
         Text(
-          'Enter the email address associated with your account and we\'ll send you a link to reset your password.',
-          textAlign: TextAlign.left,
+          'Enter your email address and we\'ll send you a direct deep-link to reset your password.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
-        ).animate().fadeIn(delay: 200.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        
-        const SizedBox(height: 48),
-
+        ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 40),
         TextFormField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
@@ -146,19 +203,95 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             labelText: 'Email Address',
             prefixIcon: Icon(Icons.email_outlined, color: AppTheme.textSecondary),
           ),
-        ).animate().fadeIn(delay: 300.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        
-        const SizedBox(height: 32),
-
+        ).animate().fadeIn(delay: 300.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 28),
         SizedBox(
-          height: 60,
+          height: 56,
           child: ElevatedButton(
-            onPressed: isLoading ? null : _handleReset,
+            onPressed: isLoading ? null : _handleSendResetLink,
             child: isLoading
-                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: AppTheme.primaryDark, strokeWidth: 3))
+                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
                 : const Text('Send Reset Link'),
           ),
-        ).animate().fadeIn(delay: 400.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 16),
+        TextButton(
+          onPressed: () => setState(() => _isTokenMode = true),
+          child: const Text('Already have a reset token?', style: TextStyle(color: AppTheme.accentBlue)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTokenResetFormView(bool isLoading) {
+    return Column(
+      key: const ValueKey('token_form'),
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.4), width: 1),
+            ),
+            child: const Icon(Icons.key_rounded, size: 32, color: AppTheme.accentBlue),
+          ).animate().fadeIn(duration: 600.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          'Set New Password',
+          style: Theme.of(context).textTheme.displayMedium,
+        ).animate().fadeIn(delay: 100.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 12),
+        Text(
+          'Your reset token has been loaded. Enter your new password below.',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+        ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 36),
+        TextFormField(
+          controller: _tokenController,
+          decoration: const InputDecoration(
+            labelText: 'Reset Token',
+            prefixIcon: Icon(Icons.vpn_key_outlined, color: AppTheme.textSecondary),
+          ),
+        ).animate().fadeIn(delay: 300.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _newPasswordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            labelText: 'New Password',
+            prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.textSecondary),
+            suffixIcon: IconButton(
+              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: AppTheme.textSecondary),
+              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
+          ),
+        ).animate().fadeIn(delay: 350.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _confirmPasswordController,
+          obscureText: _obscurePassword,
+          decoration: const InputDecoration(
+            labelText: 'Confirm Password',
+            prefixIcon: Icon(Icons.lock_outline, color: AppTheme.textSecondary),
+          ),
+        ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 28),
+        SizedBox(
+          height: 56,
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _handleConfirmReset,
+            child: isLoading
+                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                : const Text('Update Password'),
+          ),
+        ).animate().fadeIn(delay: 450.ms, duration: 600.ms).slideY(begin: 0.2),
       ],
     );
   }
@@ -177,37 +310,70 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             decoration: BoxDecoration(
               color: AppTheme.surfaceDark,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.borderDark, width: 1),
+              border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.4), width: 1),
             ),
-            child: const Icon(Icons.mark_email_read_rounded, size: 32, color: AppTheme.accentIndigo),
-          ).animate().fadeIn(duration: 800.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
+            child: const Icon(Icons.mark_email_read_rounded, size: 32, color: AppTheme.accentBlue),
+          ).animate().fadeIn(duration: 600.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
         ),
-        
-        const SizedBox(height: 32),
-        
+        const SizedBox(height: 28),
         Text(
-          'Check Your Inbox',
-          textAlign: TextAlign.left,
+          'Check Your Link',
           style: Theme.of(context).textTheme.displayMedium,
-        ).animate().fadeIn(delay: 100.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        
+        ).animate().fadeIn(delay: 100.ms, duration: 600.ms).slideY(begin: 0.2),
         const SizedBox(height: 12),
-        
         Text(
-          'We\'ve sent a password reset link to ${_emailController.text}',
-          textAlign: TextAlign.left,
+          'We\'ve sent a reset link to ${_emailController.text}. Tap the link in your email to open the app and reset your password.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
-        ).animate().fadeIn(delay: 200.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
-        
-        const SizedBox(height: 48),
-        
+        ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 36),
         SizedBox(
-          height: 60,
+          height: 56,
           child: OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Return to Login'),
+            onPressed: () => setState(() => _isTokenMode = true),
+            child: const Text('Enter Token Manually'),
           ),
-        ).animate().fadeIn(delay: 300.ms, duration: 800.ms).slideY(begin: 0.2, curve: AppTheme.fluidCurve),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResetCompleteView() {
+    return Column(
+      key: const ValueKey('complete'),
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.accentBlue, width: 1),
+            ),
+            child: const Icon(Icons.check_circle_outline_rounded, size: 32, color: AppTheme.accentBlue),
+          ).animate().fadeIn(duration: 600.ms, curve: AppTheme.fluidCurve).slideY(begin: 0.2),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          'Password Updated',
+          style: Theme.of(context).textTheme.displayMedium,
+        ).animate().fadeIn(delay: 100.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 12),
+        Text(
+          'Your password has been successfully reset. You can now log in with your new credentials.',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+        ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.2),
+        const SizedBox(height: 36),
+        SizedBox(
+          height: 56,
+          child: ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Back to Login'),
+          ),
+        ),
       ],
     );
   }

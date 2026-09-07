@@ -10,6 +10,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.springframework.stereotype.Service;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,51 +19,110 @@ import java.util.List;
 @Service
 public class PdfExportService {
 
-    private static final float MARGIN = 50;
-    private static final float LINE_HEIGHT = 16;
-    private static final float TITLE_LINE_HEIGHT = 24;
+    private static final float MARGIN = 45;
 
     public byte[] generateSessionPdf(PracticeSession session) {
+        return generateSessionPdf(session, session.getId().intValue());
+    }
+
+    public byte[] generateSessionPdf(PracticeSession session, int userSessionNumber) {
         try (PDDocument document = new PDDocument()) {
 
             PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
             PDType1Font fontNormal = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
-            PDType1Font fontItalic = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
+            PDType1Font fontOblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
 
             float pageWidth = PDRectangle.A4.getWidth();
             float pageHeight = PDRectangle.A4.getHeight();
             float usableWidth = pageWidth - 2 * MARGIN;
 
-            // We will track pages and y position manually
             PDPage currentPage = new PDPage(PDRectangle.A4);
             document.addPage(currentPage);
             PDPageContentStream cs = new PDPageContentStream(document, currentPage);
             float y = pageHeight - MARGIN;
 
-            // ── Title ──
-            y = drawText(cs, fontBold, 20, "Rehearsal - Interview Report", MARGIN, y, usableWidth);
-            y -= 8;
-            y = drawText(cs, fontNormal, 10, "Session #" + session.getId() + "  |  " +
-                    (session.getCreatedAt() != null ? session.getCreatedAt().format(DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a")) : "Unknown Date"), MARGIN, y, usableWidth);
-            y -= 6;
-            y = drawText(cs, fontNormal, 10, "Match Score: " + (session.getMatchScore() != null ? session.getMatchScore() + "%" : "N/A"), MARGIN, y, usableWidth);
-            y -= 20;
+            // Colors
+            Color primaryDark = new Color(15, 23, 42);      // Slate 900
+            Color textPrimary = new Color(30, 41, 59);      // Slate 800
+            Color textSecondary = new Color(100, 116, 139); // Slate 500
+            Color accentBlue = new Color(37, 99, 235);      // Blue 600
+            Color cardBg = new Color(248, 250, 252);        // Slate 50
+            Color cardBorder = new Color(226, 232, 240);    // Slate 200
 
-            // ── Line separator ──
-            cs.setLineWidth(0.5f);
-            cs.moveTo(MARGIN, y);
-            cs.lineTo(pageWidth - MARGIN, y);
-            cs.stroke();
-            y -= 20;
+            // ── Top Header Banner Accent ──
+            cs.setNonStrokingColor(primaryDark);
+            cs.addRect(MARGIN, y - 48, usableWidth, 48);
+            cs.fill();
 
-            // ── Questions & Answers ──
+            cs.setNonStrokingColor(Color.WHITE);
+            cs.beginText();
+            cs.setFont(fontBold, 16);
+            cs.newLineAtOffset(MARGIN + 16, y - 30);
+            cs.showText("REHEARSAL  |  INTERVIEW REPORT");
+            cs.endText();
+
+            y -= 64;
+
+            // ── Session Meta Info Card ──
+            cs.setNonStrokingColor(cardBg);
+            cs.setStrokingColor(cardBorder);
+            cs.setLineWidth(1.0f);
+            cs.addRect(MARGIN, y - 54, usableWidth, 54);
+            cs.fillAndStroke();
+
+            String sessionTitle = "Session #" + userSessionNumber;
+            String sessionDate = session.getCreatedAt() != null
+                    ? session.getCreatedAt().format(DateTimeFormatter.ofPattern("EEEE, MMM d, yyyy  h:mm a"))
+                    : "Date N/A";
+            String scoreText = (session.getMatchScore() != null ? session.getMatchScore() + "%" : "N/A");
+
+            // Session Title & Date
+            cs.setNonStrokingColor(textPrimary);
+            cs.beginText();
+            cs.setFont(fontBold, 14);
+            cs.newLineAtOffset(MARGIN + 14, y - 22);
+            cs.showText(sessionTitle);
+            cs.endText();
+
+            cs.setNonStrokingColor(textSecondary);
+            cs.beginText();
+            cs.setFont(fontNormal, 10);
+            cs.newLineAtOffset(MARGIN + 14, y - 40);
+            cs.showText(sessionDate);
+            cs.endText();
+
+            // Match Score Badge on Right
+            cs.setNonStrokingColor(accentBlue);
+            cs.beginText();
+            cs.setFont(fontBold, 18);
+            cs.newLineAtOffset(pageWidth - MARGIN - 80, y - 24);
+            cs.showText(scoreText);
+            cs.endText();
+
+            cs.setNonStrokingColor(textSecondary);
+            cs.beginText();
+            cs.setFont(fontBold, 9);
+            cs.newLineAtOffset(pageWidth - MARGIN - 80, y - 38);
+            cs.showText("MATCH SCORE");
+            cs.endText();
+
+            y -= 74;
+
+            // ── Section Title: Questions & Coaching ──
+            cs.setNonStrokingColor(primaryDark);
+            cs.beginText();
+            cs.setFont(fontBold, 12);
+            cs.newLineAtOffset(MARGIN, y);
+            cs.showText("QUESTION ANALYSIS & COACHING");
+            cs.endText();
+            y -= 14;
+
             List<Question> questions = session.getQuestions();
-            if (questions != null) {
+            if (questions != null && !questions.isEmpty()) {
                 for (int i = 0; i < questions.size(); i++) {
                     Question q = questions.get(i);
 
-                    // Check if we need a new page
-                    if (y < MARGIN + 100) {
+                    if (y < MARGIN + 120) {
                         cs.close();
                         currentPage = new PDPage(PDRectangle.A4);
                         document.addPage(currentPage);
@@ -70,29 +130,66 @@ public class PdfExportService {
                         y = pageHeight - MARGIN;
                     }
 
-                    // Question
-                    y = drawText(cs, fontBold, 12, "Q" + (i + 1) + ": " + q.getText(), MARGIN, y, usableWidth);
+                    // Question Header
+                    String category = q.getCategory() != null ? q.getCategory().toUpperCase() : "GENERAL";
+                    cs.setNonStrokingColor(accentBlue);
+                    cs.beginText();
+                    cs.setFont(fontBold, 10);
+                    cs.newLineAtOffset(MARGIN, y);
+                    cs.showText("Q" + (i + 1) + " • " + category);
+                    cs.endText();
+                    y -= 14;
+
+                    // Question Text
+                    cs.setNonStrokingColor(textPrimary);
+                    y = drawWrappedText(cs, fontBold, 11, q.getText(), MARGIN, y, usableWidth, 14, textPrimary);
                     y -= 6;
 
-                    // Answer
+                    // User Answer
                     String answerText = "No answer recorded.";
                     if (q.getAnswer() != null && q.getAnswer().getTranscriptText() != null && !q.getAnswer().getTranscriptText().trim().isEmpty()) {
-                        answerText = q.getAnswer().getTranscriptText();
+                        answerText = "\"" + q.getAnswer().getTranscriptText().trim() + "\"";
                     }
-                    y = drawText(cs, fontNormal, 10, "A: " + answerText, MARGIN + 10, y, usableWidth - 10);
+
+                    cs.setNonStrokingColor(textSecondary);
+                    cs.beginText();
+                    cs.setFont(fontBold, 9);
+                    cs.newLineAtOffset(MARGIN + 10, y);
+                    cs.showText("YOUR ANSWER:");
+                    cs.endText();
+                    y -= 12;
+
+                    y = drawWrappedText(cs, fontOblique, 10, answerText, MARGIN + 10, y, usableWidth - 10, 13, textPrimary);
                     y -= 6;
 
-                    // Feedback
-                    if (q.getAnswer() != null && q.getAnswer().getAiFeedback() != null) {
-                        y = drawText(cs, fontItalic, 9, "Feedback: " + q.getAnswer().getAiFeedback(), MARGIN + 10, y, usableWidth - 10);
+                    // AI Feedback
+                    if (q.getAnswer() != null && q.getAnswer().getAiFeedback() != null && !q.getAnswer().getAiFeedback().trim().isEmpty()) {
+                        cs.setNonStrokingColor(accentBlue);
+                        cs.beginText();
+                        cs.setFont(fontBold, 9);
+                        cs.newLineAtOffset(MARGIN + 10, y);
+                        cs.showText("AI COACHING FEEDBACK:");
+                        cs.endText();
+                        y -= 12;
+
+                        y = drawWrappedText(cs, fontNormal, 9.5f, q.getAnswer().getAiFeedback().trim(), MARGIN + 10, y, usableWidth - 10, 13, textPrimary);
                     }
+
+                    y -= 16;
+
+                    // Divider line
+                    cs.setStrokingColor(cardBorder);
+                    cs.setLineWidth(0.5f);
+                    cs.moveTo(MARGIN, y);
+                    cs.lineTo(pageWidth - MARGIN, y);
+                    cs.stroke();
                     y -= 16;
                 }
             }
 
-            // ── Action Plan ──
-            if (session.getActionPlan() != null && !session.getActionPlan().isEmpty()) {
-                if (y < MARGIN + 80) {
+            // ── Section: Action Plan ──
+            if (session.getActionPlan() != null && !session.getActionPlan().trim().isEmpty()) {
+                if (y < MARGIN + 100) {
                     cs.close();
                     currentPage = new PDPage(PDRectangle.A4);
                     document.addPage(currentPage);
@@ -100,16 +197,15 @@ public class PdfExportService {
                     y = pageHeight - MARGIN;
                 }
 
-                y -= 10;
-                cs.setLineWidth(0.5f);
-                cs.moveTo(MARGIN, y);
-                cs.lineTo(pageWidth - MARGIN, y);
-                cs.stroke();
-                y -= 16;
+                cs.setNonStrokingColor(primaryDark);
+                cs.beginText();
+                cs.setFont(fontBold, 12);
+                cs.newLineAtOffset(MARGIN, y);
+                cs.showText("TAILORED ACTION PLAN");
+                cs.endText();
+                y -= 14;
 
-                y = drawText(cs, fontBold, 14, "Action Plan", MARGIN, y, usableWidth);
-                y -= 8;
-                y = drawText(cs, fontNormal, 10, session.getActionPlan(), MARGIN, y, usableWidth);
+                y = drawWrappedText(cs, fontNormal, 10, session.getActionPlan().trim(), MARGIN, y, usableWidth, 14, textPrimary);
             }
 
             cs.close();
@@ -124,17 +220,14 @@ public class PdfExportService {
         }
     }
 
-    /**
-     * Draw wrapped text and return the new y position.
-     */
-    private float drawText(PDPageContentStream cs, PDType1Font font, float fontSize, String text, float x, float y, float maxWidth) throws Exception {
+    private float drawWrappedText(PDPageContentStream cs, PDType1Font font, float fontSize, String text, float x, float y, float maxWidth, float lineHeight, Color textColor) throws Exception {
         if (text == null || text.isEmpty()) return y;
 
         List<String> lines = wrapText(text, font, fontSize, maxWidth);
-        float lineHeight = fontSize + 4;
+        cs.setNonStrokingColor(textColor);
 
         for (String line : lines) {
-            if (y < MARGIN) return y; // Can't fit more on this page
+            if (y < MARGIN) return y;
             cs.beginText();
             cs.setFont(font, fontSize);
             cs.newLineAtOffset(x, y);
@@ -147,13 +240,11 @@ public class PdfExportService {
 
     private List<String> wrapText(String text, PDType1Font font, float fontSize, float maxWidth) throws Exception {
         List<String> lines = new ArrayList<>();
-        // Handle newlines in text
         String[] paragraphs = text.split("\n");
         for (String para : paragraphs) {
             String[] words = para.split("\\s+");
             StringBuilder currentLine = new StringBuilder();
             for (String word : words) {
-                // Sanitize word - replace characters not in WinAnsiEncoding
                 word = sanitize(word);
                 String test = currentLine.length() == 0 ? word : currentLine + " " + word;
                 float width = font.getStringWidth(test) / 1000 * fontSize;
@@ -174,7 +265,6 @@ public class PdfExportService {
 
     private String sanitize(String input) {
         if (input == null) return "";
-        // Replace common problematic characters
         return input.replaceAll("[^\\x20-\\x7E]", "");
     }
 }

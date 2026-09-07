@@ -15,12 +15,20 @@ class AppTheme {
   static const Color cardLight = Color(0xFFFAFAFA); // Zinc 50
   static const Color borderLight = Color(0xFFE4E4E7); // Zinc 200
 
-  // Accents are subtle and sophisticated (Aligned with app icon blue/indigo)
-  static const Color accentIndigo = Color(0xFF6366F1); // Muted Indigo
-  static const Color accentSilver = Color(0xFFA1A1AA); // Zinc 400
-  static const Color accentGreen = Color(0xFF10B981); // Emerald 500
-  static const Color accentBlue = Color(0xFF3B82F6); // Blue 500
-  static const Color accentPurple = Color(0xFF8B5CF6); // Violet 500
+  // Cohesive High-End Accent Palette (Unified Electric Cyan & Specular Blue)
+  // Previous colors backup:
+  // static const Color accentIndigo = Color(0xFF6366F1);
+  // static const Color accentGreen = Color(0xFF10B981);
+  // static const Color accentPurple = Color(0xFF8B5CF6);
+
+  static const Color accentBlue = Color(0xFF38BDF8); // Electric Sky Cyan/Blue
+  static const Color accentIndigo = Color(0xFF2563EB); // Specular Royal Blue
+  static const Color accentCyan = Color(0xFF0EA5E9); // Deep Cyan Accent
+  static const Color accentSilver = Color(0xFFA1A1AA); // Specular Slate
+  
+  // Backward compatibility aliases aligned to unified Electric Cyan & Specular Blue
+  static const Color accentGreen = Color(0xFF38BDF8); // Electric Sky Cyan
+  static const Color accentPurple = Color(0xFF2563EB); // Specular Royal Blue
   
   static const Color textPrimary = Color(0xFFFAFAFA); // Zinc 50
   static const Color textSecondary = Color(0xFFA1A1AA); // Zinc 400

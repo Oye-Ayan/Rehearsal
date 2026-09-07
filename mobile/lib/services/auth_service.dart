@@ -192,4 +192,32 @@ class AuthService extends ChangeNotifier {
     await _storage.deleteAll();
     notifyListeners();
   }
+
+  /// Reset password with token from deep link
+  Future<String?> resetPassword(String token, String newPassword) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConstants.apiBase}/auth/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'token': token, 'newPassword': newPassword}),
+      );
+
+      if (response.statusCode == 200) {
+        _isLoading = false;
+        notifyListeners();
+        return null; // success
+      } else {
+        _isLoading = false;
+        notifyListeners();
+        return response.body.isNotEmpty ? response.body : 'Failed to reset password';
+      }
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return 'Network error: ${e.toString()}';
+    }
+  }
 }

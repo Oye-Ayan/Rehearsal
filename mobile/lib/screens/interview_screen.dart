@@ -207,9 +207,13 @@ class _InterviewScreenState extends State<InterviewScreen> {
   }
 
   Color _getScoreColor(int score) {
-    if (score >= 80) return AppTheme.accentGreen;
-    if (score >= 60) return AppTheme.accentBlue;
-    if (score >= 40) return Colors.amber;
+    // Previous colors backup:
+    // if (score >= 80) return AppTheme.accentGreen;
+    // if (score >= 60) return AppTheme.accentBlue;
+    // if (score >= 40) return Colors.amber;
+    if (score >= 80) return AppTheme.accentBlue;
+    if (score >= 60) return AppTheme.accentIndigo;
+    if (score >= 40) return AppTheme.accentSilver;
     return AppTheme.errorRed;
   }
 

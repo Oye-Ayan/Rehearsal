@@ -216,10 +216,13 @@ class ApiService {
   }
 
   /// Download session PDF report bytes
-  Future<Uint8List?> downloadSessionPdf(int sessionId) async {
+  Future<Uint8List?> downloadSessionPdf(int sessionId, {int? userSessionNumber}) async {
     try {
+      final uri = userSessionNumber != null
+          ? Uri.parse('${AppConstants.apiBase}/sessions/$sessionId/export-pdf?userSessionNumber=$userSessionNumber')
+          : Uri.parse('${AppConstants.apiBase}/sessions/$sessionId/export-pdf');
       final response = await http.get(
-        Uri.parse('${AppConstants.apiBase}/sessions/$sessionId/export-pdf'),
+        uri,
         headers: _authService.authHeaders,
       );
 

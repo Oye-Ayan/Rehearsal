@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:path_provider/path_provider.dart';
@@ -60,31 +61,82 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _downloadPdf() async {
     setState(() => _isDownloadingPdf = true);
     final apiService = ApiService(context.read<AuthService>());
-    final bytes = await apiService.downloadSessionPdf(widget.sessionId);
+    final bytes = await apiService.downloadSessionPdf(widget.sessionId, userSessionNumber: widget.userSessionNumber);
     setState(() => _isDownloadingPdf = false);
 
     if (!mounted) return;
 
     if (bytes != null) {
       try {
-        final dir = await getApplicationDocumentsDirectory();
-        final file = File('${dir.path}/Rehearsal_Report_Session_${widget.userSessionNumber ?? widget.sessionId}.pdf');
-        await file.writeAsBytes(bytes);
+        final defaultFileName = 'Rehearsal_Report_Session_${widget.userSessionNumber ?? widget.sessionId}.pdf';
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('PDF Report saved to ${file.path}'),
-              backgroundColor: AppTheme.accentGreen,
-              duration: const Duration(seconds: 4),
-            ),
+        // Open native save dialog to let user choose target directory & filename
+        String? selectedPath = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save PDF Report',
+          fileName: defaultFileName,
+          type: FileType.custom,
+          allowedExtensions: ['pdf'],
+          bytes: bytes,
+        );
+
+        // Fallback for Android/iOS directory picker if saveFile returns null without user cancel
+        if (selectedPath == null && Platform.isAndroid) {
+          final selectedDir = await FilePicker.platform.getDirectoryPath(
+            dialogTitle: 'Select folder to save PDF Report',
           );
+          if (selectedDir != null) {
+            selectedPath = '$selectedDir/$defaultFileName';
+          }
+        }
+
+        if (selectedPath != null) {
+          final file = File(selectedPath);
+          if (!await file.exists() || (await file.length()) == 0) {
+            await file.writeAsBytes(bytes);
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('PDF Report saved to:\n$selectedPath'),
+                backgroundColor: AppTheme.accentGreen,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('PDF save cancelled.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to write PDF file locally.'), backgroundColor: AppTheme.errorRed),
-          );
+        // Safe Fallback to documents directory
+        try {
+          final dir = await getApplicationDocumentsDirectory();
+          final fallbackPath = '${dir.path}/Rehearsal_Report_Session_${widget.userSessionNumber ?? widget.sessionId}.pdf';
+          final file = File(fallbackPath);
+          await file.writeAsBytes(bytes);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('PDF Report saved to Documents:\n$fallbackPath'),
+                backgroundColor: AppTheme.accentGreen,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        } catch (_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to save PDF file.'), backgroundColor: AppTheme.errorRed),
+            );
+          }
         }
       }
     } else {
@@ -405,10 +457,10 @@ class _ReportScreenState extends State<ReportScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentPurple.withValues(alpha: 0.15),
+                  color: AppTheme.accentBlue.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.accentPurple, size: 20),
+                child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.accentBlue, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -430,7 +482,7 @@ class _ReportScreenState extends State<ReportScreen> {
           if (isGenerating)
             Row(
               children: [
-                const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentPurple)),
+                const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentBlue)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(

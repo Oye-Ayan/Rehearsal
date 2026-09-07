@@ -37,6 +37,9 @@ public class AuthService {
     @Value("${google.client.id}")
     private String googleClientId;
 
+    @Value("${app.reset-password.url-scheme:rehearsal://reset-password?token=}")
+    private String resetPasswordUrlScheme;
+
     public AuthService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
@@ -126,8 +129,10 @@ public class AuthService {
         PasswordResetToken token = new PasswordResetToken(tokenStr, user, LocalDateTime.now().plusHours(1));
         tokenRepository.save(token);
 
-        // Ideally this would be a deep link into the mobile app, but a mock web url works for the simulation
-        String resetLink = "https://rehearsal.app/reset-password?token=" + tokenStr;
+        // Previous code backup:
+        // String resetLink = "https://rehearsal.app/reset-password?token=" + tokenStr;
+
+        String resetLink = (resetPasswordUrlScheme != null ? resetPasswordUrlScheme : "rehearsal://reset-password?token=") + tokenStr;
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
